@@ -28,6 +28,9 @@ void setup()
 
 void loop()
 {
+  delay(2500);
+    // Clear the display:
+  lcd.clear();
   ICMPEchoReply echoReply = ping(pingAddr, 4);
   if (echoReply.status == SUCCESS)
   {
@@ -41,19 +44,18 @@ void loop()
             REQ_DATASIZE,
             millis() - echoReply.data.time,
             echoReply.ttl);
+    lcd.print("It works! :)");
   }
   else
   {
     sprintf(buffer, "Echo request failed; %d", echoReply.status);
+    lcd.print("It works! :)");
   }
   Serial.println(buffer);
-  delay(500);
+  delay(1500);
   
    // Clear the display:
   lcd.clear();
   delay(500);
    // Print a message to the LCD. 
-  lcd.print("Reply[%d] from: %d.%d.%d.%d: bytes=%d time=%ldms TTL=%d");
-  
-  delay(2500);
 }
