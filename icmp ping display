@@ -1,0 +1,59 @@
+#include <SPI.h>
+#include <Ethernet.h>
+#include <ICMPPing.h>
+#include <LiquidCrystal.h>
+
+byte mac[] = {0xDE, 0xAD, 0xBE, 0xBE, 0xFE, 0xED};
+byte ip[] = {192,168,0,10}; // ip address for ethernet shield
+IPAddress pingAddr(8,8,8,8); // ip address to ping
+
+SOCKET pingSocket = 0;
+char buffer [256];
+ICMPPing ping(pingSocket, (uint16_t)random(0, 255));
+
+LiquidCrystal lcd(1, 2, 4, 5, 6, 7);
+
+void setup() {
+  
+  lcd.begin(16, 2);
+  
+  // start Ethernet
+  Ethernet.begin(mac, ip);
+  Serial.begin(9600);
+}
+
+void loop()
+{
+  ICMPEchoReply echoReply = ping(pingAddr, 4);
+  if (echoReply.status == SUCCESS)
+  
+  {
+    delay(5000); 
+   lcd.print((millis() - echoReply.data.time));
+   lcd.print("____________________________________");
+   delay(3000);
+   
+    sprintf(buffer,
+            "Reply[%d] from: %d.%d.%d.%d: bytes=%d time=%ldms TTL=%d",
+            echoReply.data.seq,
+            echoReply.addr[0],
+            echoReply.addr[1],
+            echoReply.addr[2],
+            echoReply.addr[3],
+            REQ_DATASIZE,
+            millis() - echoReply.data.time,
+            echoReply.ttl);
+   
+  }
+  else
+  {
+    lcd.print("ERROR");
+    delay(5000);
+    lcd.clear();
+    delay(1000);
+   
+    sprintf(buffer, "Echo request failed; %d", echoReply.status);
+  }
+  Serial.println(buffer);
+  delay(2500);
+}
