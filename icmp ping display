@@ -3,6 +3,12 @@
 #include <ICMPPing.h>
 #include <LiquidCrystal.h>
 
+// ICMP code developed by Blake Foster.
+// LiquidDisplay code developed by Arduino.
+
+// Combined codes for a program that shows the ping times of the ICMP via LCD screen.
+// Still having some trouble with accurate ping times and issues between the ICMP library and the LCD library, but its usable now.
+
 byte mac[] = {0xDE, 0xAD, 0xBE, 0xBE, 0xFE, 0xED};
 byte ip[] = {192,168,0,10}; // ip address for ethernet shield
 IPAddress pingAddr(8,8,8,8); // ip address to ping
@@ -11,13 +17,12 @@ SOCKET pingSocket = 0;
 char buffer [256];
 ICMPPing ping(pingSocket, (uint16_t)random(0, 255));
 
-LiquidCrystal lcd(1, 2, 4, 5, 6, 7);
+LiquidCrystal lcd(1, 4, 2, 5, 6, 7);
 
 void setup() {
+
+  lcd.begin(16, 2); 
   
-  lcd.begin(16, 2);
-  
-  // start Ethernet
   Ethernet.begin(mac, ip);
   Serial.begin(9600);
 }
@@ -28,10 +33,20 @@ void loop()
   if (echoReply.status == SUCCESS)
   
   {
-    delay(5000); 
+
+if(((millis() - echoReply.data.time)<1000))  {
+
    lcd.print((millis() - echoReply.data.time));
-   lcd.print("____________________________________");
-   delay(3000);
+   lcd.print("ms");
+   lcd.print("                                   ");
+
+}   else
+
+   lcd.print((millis() - echoReply.data.time));
+   lcd.print("ms");
+   lcd.print("                                  ");
+
+   
    
     sprintf(buffer,
             "Reply[%d] from: %d.%d.%d.%d: bytes=%d time=%ldms TTL=%d",
@@ -47,10 +62,9 @@ void loop()
   }
   else
   {
-    lcd.print("ERROR");
-    delay(5000);
-    lcd.clear();
-    delay(1000);
+
+    lcd.print("_____ERROR______________________________");
+   
    
     sprintf(buffer, "Echo request failed; %d", echoReply.status);
   }
