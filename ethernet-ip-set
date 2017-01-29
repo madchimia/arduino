@@ -1,3 +1,5 @@
+//Code developed by Arduino.
+
 #include <SPI.h>
 #include <Ethernet.h>
 
